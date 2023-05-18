@@ -262,7 +262,7 @@ def process_output(fx_name,s,g,direction):
                     pass
                 elif informed_search == "A*":
                     pass
-        elif direction == 1:  # Handle directed graph
+        elif direction == 1:  # Handle directed grap
             if chkbox == 0:  # uninformed
                 if uninformed_search == "Breadth First Search":
                     pass
