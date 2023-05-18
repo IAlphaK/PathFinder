@@ -1,5 +1,5 @@
 import python_ui
-from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QGraphicsItem
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QGraphicsItem, QComboBox, QCheckBox
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor, QPen
 from PyQt6.QtWidgets import QGraphicsScene
@@ -10,10 +10,91 @@ main_window = QMainWindow()
 interface = python_ui.Ui_MainWindow()
 interface.setupUi(main_window)
 
+# Store references to the checkboxes and comboboxes
+chk_inform = interface.chk_inform
+chk_uninform = interface.chk_uninform
+uninformed_dropdown = interface.uninformed_dropdown
+i_informedheu = interface.i_informedheu
+i_informednode = interface.i_informednode
+addnode_heu = interface.addnode_heu
+informed_dropdown = interface.informed_dropdown
+direction_dropdown = interface.direction_dropdown
+
+# By default, select chk_uninform and show the corresponding combobox
+chk_uninform.setChecked(True)
+uninformed_dropdown.setEnabled(True)
+i_informedheu.setEnabled(False)
+i_informednode.setEnabled(False)
+addnode_heu.setEnabled(False)
+informed_dropdown.setEnabled(False)
+
 # Store references to the qlines
 node1_qline = interface.i_n1
 node2_qline = interface.i_n2
 weight_qline = interface.i_weight
+start_node_qline = interface.i_startnode
+goal_nodes_qline = interface.i_goalnode
+
+def show_confirmation_popup():
+    # Check if there is any previous progress
+    if (
+        node1_qline.text()
+        or node2_qline.text()
+        or weight_qline.text()
+        or start_node_qline.text()
+        or goal_nodes_qline.text()
+    ):
+        confirmation = QMessageBox.question(
+            main_window,
+            "Confirmation",
+            "Switching will clear all previous progress. Are you sure you want to proceed?",
+            QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel,
+        )
+        if confirmation == QMessageBox.StandardButton.Cancel:
+            return False
+        else:
+            # Clear the qlines
+            node1_qline.clear()
+            node2_qline.clear()
+            weight_qline.clear()
+            start_node_qline.clear()
+            goal_nodes_qline.clear()
+    return True
+
+def handle_chk_inform():
+    if show_confirmation_popup():
+        if chk_inform.isChecked():
+            chk_uninform.setChecked(False)
+            uninformed_dropdown.setEnabled(False)
+            i_informedheu.setEnabled(True)
+            i_informednode.setEnabled(True)
+            addnode_heu.setEnabled(True)
+            informed_dropdown.setEnabled(True)
+        else:
+            i_informedheu.setEnabled(False)
+            i_informednode.setEnabled(False)
+            addnode_heu.setEnabled(False)
+            informed_dropdown.setEnabled(False)
+
+def handle_chk_uninform():
+    if show_confirmation_popup():
+        if chk_uninform.isChecked():
+            chk_inform.setChecked(False)
+            uninformed_dropdown.setEnabled(True)
+            i_informedheu.setEnabled(False)
+            i_informednode.setEnabled(False)
+            addnode_heu.setEnabled(False)
+            informed_dropdown.setEnabled(False)
+
+def handle_informed_dropdown_change(index):
+    if show_confirmation_popup():
+        # Handle the change in informed_dropdown
+        pass
+
+def handle_uninformed_dropdown_change(index):
+    if show_confirmation_popup():
+        # Handle the change in uninformed_dropdown
+        pass
 
 def add_node():
     # Get the text entered in qlines
@@ -35,10 +116,71 @@ def add_node():
     node2_qline.clear()
     weight_qline.clear()
 
+inode_qline = interface.i_informednode
+heu_qline = interface.i_informedheu
+def add_heunode():
+    # Get the text entered in qlines
+    node1 = inode_qline.text()
+    heu = heu_qline.text()
 
+    # Perform validation on the inputs
+    if len(node1) != 1:
+        QMessageBox.warning(main_window, "Invalid Input", "Node name should be a single letter.")
+        return
 
+    if not heu.isdigit():
+        QMessageBox.warning(main_window, "Invalid Input", "Weight should be an integer.")
+        return
+    # Clear the qlines
+    inode_qline.clear()
+    heu_qline.clear()
+def start_to_goal():
+    # Get the text entered in qlines
+    start_node = start_node_qline.text()
+    goal_nodes = goal_nodes_qline.text()
 
+    # Perform validation on the inputs
+    if not start_node.isalpha():
+        QMessageBox.warning(main_window, "Invalid Input", "Start node should be a single letter.")
+        return
 
+    goal_nodes_list = goal_nodes.split(",")
+    for goal_node in goal_nodes_list:
+        if not goal_node.isalpha():
+            QMessageBox.warning(main_window, "Invalid Input", "Goal nodes should be letters separated by commas.")
+            return
+
+    # Clear the qlines
+    start_node_qline.clear()
+    goal_nodes_qline.clear()
+
+def handle_direction_change(index):
+    if show_confirmation_popup():
+        selected_direction = direction_dropdown.itemText(index)
+        # Clear the qlines
+        node1_qline.clear()
+        node2_qline.clear()
+        weight_qline.clear()
+        start_node_qline.clear()
+        goal_nodes_qline.clear()
+        # Process the selected direction
+        if selected_direction == "Undirected Graph":
+            # TODO: Handle undirected graph
+            pass
+        elif selected_direction == "Directed Graph":
+            # TODO: Handle directed graph
+            pass
+
+# Connect the signals to their respective slots
+chk_inform.stateChanged.connect(handle_chk_inform)
+chk_uninform.stateChanged.connect(handle_chk_uninform)
+uninformed_dropdown.currentIndexChanged.connect(handle_uninformed_dropdown_change)
+informed_dropdown.currentIndexChanged.connect(handle_informed_dropdown_change)
+direction_dropdown.currentIndexChanged.connect(handle_direction_change)
+
+interface.submit.clicked.connect(start_to_goal)
 interface.node_add.clicked.connect(add_node)
+interface.addnode_heu.clicked.connect(add_heunode)
+
 main_window.show()
 sys.exit(app.exec())
