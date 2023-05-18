@@ -12,7 +12,7 @@ import dfs
 import dls
 import ucs
 import bid
-
+import ids
 app = QApplication(sys.argv)
 main_window = QMainWindow()
 interface = python_ui.Ui_MainWindow()
@@ -361,7 +361,9 @@ def process_output(s, g):
             display_sub_graph(sub_graph)
         elif uninformed_search == "Iterative Deepening":
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
-            pass
+            listpath, sub_graph = ids.printPath(main_graph, s, g, depth)
+            print(listpath)
+            display_sub_graph(sub_graph)
         elif uninformed_search == "Uniform Cost Search":
             listpath, sub_graph = ucs.printPath(main_graph, s, g)
             print(listpath)
