@@ -220,7 +220,7 @@ def display_sub_graph(sub_graph):
         end_node = edge[1]
         start_pos = pos[start_node]
         end_pos = pos[end_node]
-        weight = str(sub_graph[start_node][end_node]['w'])  # Get the weight of the edge
+        weight = str(sub_graph[start_node][end_node]['weight'])  # Get the weight of the edge
         graph_scene.addLine(
             start_pos[0] * 100 + node_size / 2,
             start_pos[1] * 100 + node_size / 2,

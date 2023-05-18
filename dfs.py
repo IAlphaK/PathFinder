@@ -20,7 +20,7 @@ def printPath(graph, start, goals):
                 source = path[i]
                 target = path[i + 1]
                 weight = graph.get_edge_data(source, target)['w']
-                path_graph.add_edge(source, target, w=weight)
+                path_graph.add_edge(source, target, weight=weight)
             return traversal_path, path_graph.subgraph(traversal_path)  # Return the complete traversal path and the subgraph
 
         neighbors = graph.neighbors(node)  # Get the neighbors of the current node from the graph
@@ -30,7 +30,7 @@ def printPath(graph, start, goals):
                 stack.append((neighbor, path + [neighbor]))  # Update the path
                 visited.add(neighbor)
                 weight = graph.get_edge_data(node, neighbor)['w']  # Get the weight of the edge
-                path_graph.add_edge(node, neighbor, w=weight)  # Add the edge with its weight to the path graph
+                path_graph.add_edge(node, neighbor, weight=weight)  # Add the edge with its weight to the path graph
 
     # If goal node is not found, return None or a custom value
     return None, None
