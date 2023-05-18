@@ -3,7 +3,7 @@ import heapq
 
 
 class BidirectionalGraph:
-    def _init_(self):
+    def __init__(self):
         self.graph_forward = defaultdict(list)
         self.graph_backward = defaultdict(list)
 
@@ -14,12 +14,12 @@ class BidirectionalGraph:
             self.graph_forward[end].append((start, weight))
             self.graph_backward[start].append((end, weight))
 
-    def bidirectionalSearch(self, start, goals):
+    def printpath(self, start, goals):
         queue_forward = [(0, start, [])]  # (total_cost, current_node, path)
-        queue_backward = [(0, goals, [])]  # (total_cost, current_node, path)
+        queue_backward = [(0, goals, []) for goals in goals]  # (total_cost, current_node, path) for each goal
         visited_forward = {start: (0, [])}  # {node: (total_cost, path)}
-        visited_backward = {goals: (0, [])}  # {node: (total_cost, path)}
-        intersect_node = None
+        visited_backward = {goal: (0, []) for goal in goals}  # {node: (total_cost, path)} for each goal
+        intersect_nodes = set()
         min_cost = float('inf')
 
         while queue_forward and queue_backward:
@@ -27,15 +27,15 @@ class BidirectionalGraph:
             backward_cost, current_backward, path_backward = heapq.heappop(queue_backward)
 
             if forward_cost + backward_cost >= min_cost:
-                # The optimal path has been found
+                # The optimal path to all goals has been found
                 break
 
             if current_forward in visited_backward:
-                intersect_node = current_forward
+                intersect_nodes.add(current_forward)
                 min_cost = forward_cost + backward_cost
 
             if current_backward in visited_forward:
-                intersect_node = current_backward
+                intersect_nodes.add(current_backward)
                 min_cost = forward_cost + backward_cost
 
             neighbors_forward = self.graph_forward[current_forward]
@@ -53,10 +53,8 @@ class BidirectionalGraph:
                     visited_backward[neighbor] = (total_cost, [current_backward] + path_backward)
                     heapq.heappush(queue_backward, (total_cost, neighbor, [current_backward] + path_backward))
 
-        if intersect_node is None:
-            return [], float('inf')  # No path found, return empty path and infinite cost
-
-        forward_path, forward_cost = visited_forward[intersect_node]
-        backward_path, backward_cost = visited_backward[intersect_node]
-        path = forward_path + [intersect_node] + list(reversed(backward_path))
-        return path, forward_cost + backward_cost
+        for intersect_node in intersect_nodes:
+            forward_path, forward_cost = visited_forward[intersect_node]
+            backward_path, backward_cost = visited_backward[intersect_node]
+            path = forward_path + [intersect_node] + list(reversed(backward_path))
+            print("Path to", intersect_node, "found:", path)
