@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from bfs import bfsGraph
 from dfs import dfsGraph
 
-
+from UniformCostSearch import UCS_Graph
 
 
 
@@ -24,6 +24,7 @@ main_graph= None
 #intialising algorthims variables
 bfs=bfsGraph()
 dfs=dfsGraph()
+UniformCostSearch=UCS_Graph()
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
 chk_uninform = interface.chk_uninform
@@ -237,7 +238,7 @@ def process_add(n1,n2,w):
             elif uninformed_search == "Iterative Deepening":
                 pass
             elif uninformed_search == "Uniform Cost Search":
-                pass
+                UniformCostSearch.addEdge(n1, n2, w, False)
             elif uninformed_search == "Bidirectional Search":
                 pass
         elif chkbox==1: #informed
@@ -260,7 +261,7 @@ def process_add(n1,n2,w):
             elif uninformed_search == "Iterative Deepening":
                 pass
             elif uninformed_search == "Uniform Cost Search":
-                pass
+                UniformCostSearch.addEdge(n1, n2, w, True)
             elif uninformed_search == "Bidirectional Search":
                 pass
         elif chkbox==1: #informed
@@ -281,7 +282,7 @@ def process_output(s,g):
         elif uninformed_search == "Iterative Deepening":
             pass
         elif uninformed_search == "Uniform Cost Search":
-            pass
+            UniformCostSearch.printpath(s, g)
         elif uninformed_search == "Bidirectional Search":
             pass
     elif chkbox == 1:  # informed
