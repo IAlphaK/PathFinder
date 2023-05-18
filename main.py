@@ -11,6 +11,7 @@ import bfs
 import dfs
 import dls
 import ucs
+import bid
 
 
 
@@ -353,10 +354,9 @@ def process_output(s,g):
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Bidirectional Search":
-   #         listpath,sub_graph=BiDirectional.printpath(main_graph,s, g)
-     #       print(listpath)
-      #      path(sub_graph)
-            pass
+            listpath,sub_graph=bid.printPath(main_graph,s, g)
+            print(listpath)
+            display_sub_graph(sub_graph)
     elif chkbox == 1:  # informed
         if informed_search == "Best First":
             pass
