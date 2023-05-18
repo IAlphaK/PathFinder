@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import bfs
 import dfs
 import dls
-from ucs import UCS_Graph
+import ucs
 
 
 
@@ -29,7 +29,6 @@ root.withdraw()
 #intialise graph
 main_graph= None
 #intialising algorthims variables
-ucs=UCS_Graph()
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
 chk_uninform = interface.chk_uninform
@@ -350,7 +349,7 @@ def process_output(s,g):
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             pass
         elif uninformed_search == "Uniform Cost Search":
-            listpath,sub_graph=ucs.printpath(main_graph,s, g)
+            listpath,sub_graph=ucs.printPath(main_graph,s, g)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Bidirectional Search":

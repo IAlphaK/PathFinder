@@ -1,38 +1,40 @@
-from collections import defaultdict
+import networkx as nx
 import heapq
+from collections import defaultdict
 
+def printPath(graph, start, goals):
+    visited = set()
+    priority_queue = [(0, start, [])]  # (total_cost, current_node, path)
 
-class UCS_Graph:
-    def __init__(self):
-        self.graph = defaultdict(list)
+    traversal_path = []  # Store the complete traversal path
+    path_graph = nx.Graph()  # Create an empty graph to store the path
+    path_graph.add_node(start)  # Add the start node to the traversal graph
 
-    def addEdge(self, start, end, weight, directed=True):
-        self.graph[start].append((end, int(weight), directed))
-        if not directed:
-            self.graph[end].append((start, int(weight), directed))
+    while priority_queue:
+        cost, current_node, path = heapq.heappop(priority_queue)
 
-    def printpath(self, start, goals):
-        visited = set()
-        priority_queue = [(0, start, [])]  # (total_cost, current_node, path)
+        if current_node in visited:
+            continue
 
-        while priority_queue:
-            cost, current_node, path = heapq.heappop(priority_queue)
+        visited.add(current_node)
+        path.append(current_node)
+        traversal_path.append(current_node)
+        path_graph.add_node(current_node)  # Add the current node to the traversal graph
 
-            if current_node in visited:
-                continue
+        if current_node in goals:
+            for i in range(len(path) - 1):
+                source = path[i]
+                target = path[i + 1]
+                weight = graph.get_edge_data(source, target)['w']
+                path_graph.add_edge(source, target, weight=weight)
+            return path, path_graph.subgraph(path)  # Return the path and the subgraph
 
-            visited.add(current_node)
-            path.append(current_node)
+        if current_node in graph:
+            neighbors = graph.neighbors(current_node)
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    weight = graph.get_edge_data(current_node, neighbor)['w']
+                    heapq.heappush(priority_queue, (cost + int(weight), neighbor, path[:]))
+                    path_graph.add_edge(current_node, neighbor, weight=weight)  # Add the edge to the traversal graph
 
-            if current_node in goals:
-                print("Path found:", path)  # Print the path when a goal node is reached
-                return path
-
-            if current_node in self.graph:
-                neighbors = self.graph[current_node]
-                for neighbor, weight, directed in neighbors:
-                    if neighbor not in visited:
-                        heapq.heappush(priority_queue, (cost + weight, neighbor, path[:]))
-
-        print("No path found.")
-        return []  # No path found
+    return None, None  # No path found, return an empty path and empty graph
