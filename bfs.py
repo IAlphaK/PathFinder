@@ -1,5 +1,5 @@
 from collections import defaultdict
-class Graph:
+class bfsGraph:
     # Constructor
     def __init__(self):
         # default dictionary to store graph

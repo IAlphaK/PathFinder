@@ -6,7 +6,8 @@ from PyQt6.QtWidgets import QGraphicsScene
 import sys
 import networkx as nx
 import matplotlib.pyplot as plt
-from bfs import Graph
+from bfs import bfsGraph
+from dfs import dfsGraph
 
 
 
@@ -21,8 +22,8 @@ interface.setupUi(main_window)
 #intialise graph
 main_graph= None
 #intialising algorthims variables
-bfs=Graph()
-
+bfs=bfsGraph()
+dfs=dfsGraph()
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
 chk_uninform = interface.chk_uninform
@@ -230,7 +231,7 @@ def process_add(n1,n2,w):
             if uninformed_search == "Breadth First Search":
                 bfs.addEdge(n1,n2,w,False)
             elif uninformed_search == "Depth First Search":
-                pass
+                dfs.addEdge(n1, n2, w, False)
             elif uninformed_search == "Depth Limited":
                 pass
             elif uninformed_search == "Iterative Deepening":
@@ -253,7 +254,7 @@ def process_add(n1,n2,w):
             if uninformed_search == "Breadth First Search":
                 bfs.addEdge(n1,n2,w,True)
             elif uninformed_search == "Depth First Search":
-                pass
+                dfs.addEdge(n1,n2,w,True)
             elif uninformed_search == "Depth Limited":
                 pass
             elif uninformed_search == "Iterative Deepening":
@@ -274,7 +275,7 @@ def process_output(s,g):
         if uninformed_search == "Breadth First Search":
             bfs.printpath(s,g)
         elif uninformed_search == "Depth First Search":
-            pass
+            dfs.printpath(s,g)
         elif uninformed_search == "Depth Limited":
             pass
         elif uninformed_search == "Iterative Deepening":
