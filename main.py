@@ -10,10 +10,8 @@ import matplotlib.pyplot as plt
 import bfs
 import dfs
 import dls
-from ucs import UCS_Graph
-
-
-
+import ucs
+import bid
 
 app = QApplication(sys.argv)
 main_window = QMainWindow()
@@ -22,14 +20,13 @@ interface.setupUi(main_window)
 
 graph_scene = QGraphicsScene()
 
-#for depth popup
+# for depth popup
 root = tk.Tk()
 root.withdraw()
 
-#intialise graph
-main_graph= None
-#intialising algorthims variables
-ucs=UCS_Graph()
+# intialise graph
+main_graph = None
+# intialising algorthims variables
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
 chk_uninform = interface.chk_uninform
@@ -55,18 +52,20 @@ weight_qline = interface.i_weight
 start_node_qline = interface.i_startnode
 goal_nodes_qline = interface.i_goalnode
 
-direction=0 #0 is undirected, 1 is directed
-chkbox=0 #0 is uninformed, 1 is informed
+direction = 0  # 0 is undirected, 1 is directed
+chkbox = 0  # 0 is uninformed, 1 is informed
 informed_search = "Best First"  # store the selected informed search algorithm
 uninformed_search = "Breadth First Search"  # store the selected uninformed search algorithm
+
+
 def show_confirmation_popup():
     # Check if there is any previous progress
     if (
-        node1_qline.text()
-        or node2_qline.text()
-        or weight_qline.text()
-        or start_node_qline.text()
-        or goal_nodes_qline.text()
+            node1_qline.text()
+            or node2_qline.text()
+            or weight_qline.text()
+            or start_node_qline.text()
+            or goal_nodes_qline.text()
     ):
         confirmation = QMessageBox.question(
             main_window,
@@ -85,6 +84,7 @@ def show_confirmation_popup():
             goal_nodes_qline.clear()
     return True
 
+
 def handle_chk_inform():
     if show_confirmation_popup():
         if chk_inform.isChecked():
@@ -102,6 +102,7 @@ def handle_chk_inform():
             addnode_heu.setEnabled(False)
             informed_dropdown.setEnabled(False)
 
+
 def handle_chk_uninform():
     if show_confirmation_popup():
         if chk_uninform.isChecked():
@@ -113,18 +114,23 @@ def handle_chk_uninform():
             addnode_heu.setEnabled(False)
             informed_dropdown.setEnabled(False)
 
+
 def handle_informed_dropdown_change(index):
     global informed_search
     if show_confirmation_popup():
         selected_algorithm = informed_dropdown.itemText(index)
         # Store the selected informed search algorithm
         informed_search = selected_algorithm
+
+
 def handle_uninformed_dropdown_change(index):
     global uninformed_search
     if show_confirmation_popup():
         selected_algorithm = uninformed_dropdown.itemText(index)
         # Store the selected uninformed search algorithm
         uninformed_search = selected_algorithm
+
+
 def add_node():
     # Get the text entered in qlines
     node1 = node1_qline.text()
@@ -140,14 +146,17 @@ def add_node():
         QMessageBox.warning(main_window, "Invalid Input", "Weight should be an integer.")
         return
 
-    process_add(node1,node2,weight)
+    process_add(node1, node2, weight)
     # Clear the qlines
     node1_qline.clear()
     node2_qline.clear()
     weight_qline.clear()
 
+
 inode_qline = interface.i_informednode
 heu_qline = interface.i_informedheu
+
+
 def add_heunode():
     # Get the text entered in qlines
     node1 = inode_qline.text()
@@ -164,6 +173,8 @@ def add_heunode():
     # Clear the qlines
     inode_qline.clear()
     heu_qline.clear()
+
+
 def start_to_goal_path():
     # Get the text entered in qlines
     start_node = start_node_qline.text()
@@ -184,7 +195,8 @@ def start_to_goal_path():
     # Clear the qlines
     start_node_qline.clear()
     goal_nodes_qline.clear()
-    
+
+
 def display_sub_graph(sub_graph):
     global graph_scene
 
@@ -299,8 +311,6 @@ def gen_graph():
     interface.viewgraph.setScene(graph_scene)
 
 
-
-
 def handle_direction_change(index):
     global direction
     if show_confirmation_popup():
@@ -313,56 +323,59 @@ def handle_direction_change(index):
         goal_nodes_qline.clear()
         # Process the selected direction
         if selected_direction == "Undirected Graph":
-            direction=0
+            direction = 0
         elif selected_direction == "Directed Graph":
-            direction=1
+            direction = 1
 
-def process_add(n1,n2,w):
-    global direction,main_graph
-    if direction == 0: # Handle undirected graph
+
+def process_add(n1, n2, w):
+    global direction, main_graph
+    if direction == 0:  # Handle undirected graph
         if main_graph is None:
-            main_graph=nx.Graph()
-        main_graph.add_edge(n1,n2,w=w)
+            main_graph = nx.Graph()
+        main_graph.add_edge(n1, n2, w=w)
         main_graph.add_edge(n2, n1, w=w)
 
-    elif direction == 1: # Handle directed graph
+    elif direction == 1:  # Handle directed graph
         if main_graph is None:
-            main_graph=nx.DiGraph()
+            main_graph = nx.DiGraph()
         main_graph.add_edge(n1, n2, w=w)
-def process_output(s,g):
-    global direction, chkbox, informed_search, uninformed_search,main_graph
-    depth=1     
+
+
+def process_output(s, g):
+    global direction, chkbox, informed_search, uninformed_search, main_graph
+    depth = 1
     if chkbox == 0:  # uninformed
         if uninformed_search == "Breadth First Search":
-            listpath,sub_graph=bfs.printPath(main_graph,s,g)
+            listpath, sub_graph = bfs.printPath(main_graph, s, g)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Depth First Search":
-            listpath,sub_graph=dfs.printPath(main_graph,s,g)
+            listpath, sub_graph = dfs.printPath(main_graph, s, g)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Depth Limited":
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
-            listpath,sub_graph=dls.printPath(main_graph,s,g,depth)
+            listpath, sub_graph = dls.printPath(main_graph, s, g, depth)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Iterative Deepening":
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             pass
         elif uninformed_search == "Uniform Cost Search":
-            listpath,sub_graph=ucs.printpath(main_graph,s, g)
+            listpath, sub_graph = ucs.printPath(main_graph, s, g)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Bidirectional Search":
-   #         listpath,sub_graph=BiDirectional.printpath(main_graph,s, g)
-     #       print(listpath)
-      #      path(sub_graph)
-            pass
+            listpath, sub_graph = bid.printPath(main_graph, s, g)
+            print(listpath)
+            display_sub_graph(sub_graph)
     elif chkbox == 1:  # informed
         if informed_search == "Best First":
             pass
         elif informed_search == "A*":
             pass
+
 
 # Connect the signals to their respective slots
 chk_inform.stateChanged.connect(handle_chk_inform)
