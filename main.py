@@ -1,17 +1,15 @@
 import python_ui
-from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QGraphicsItem, QComboBox, QCheckBox
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QBrush, QColor, QPen
-from PyQt6.QtWidgets import QGraphicsScene
+from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QGraphicsScene
+from PyQt6.QtGui import QImage, QPixmap, QBrush, QPen, QColor, QFont
+import io
 import tkinter as tk
 from tkinter import simpledialog
 import sys
 import networkx as nx
 import matplotlib.pyplot as plt
-from bfs import bfsGraph
+import bfs
 from dfs import dfsGraph
-from BiDirectional import BidirectionalGraph
-from UniformCostSearch import UCS_Graph
+from ucs import UCS_Graph
 
 
 
@@ -21,6 +19,8 @@ main_window = QMainWindow()
 interface = python_ui.Ui_MainWindow()
 interface.setupUi(main_window)
 
+graph_scene = QGraphicsScene()
+
 #for depth popup
 root = tk.Tk()
 root.withdraw()
@@ -28,10 +28,8 @@ root.withdraw()
 #intialise graph
 main_graph= None
 #intialising algorthims variables
-bfs=bfsGraph()
-dfs=dfsGraph()
-BiDirectional=BidirectionalGraph()
-UniformCostSearch=UCS_Graph()
+dfs = dfsGraph()
+ucs=UCS_Graph()
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
 chk_uninform = interface.chk_uninform
@@ -186,31 +184,114 @@ def start_to_goal_path():
     # Clear the qlines
     start_node_qline.clear()
     goal_nodes_qline.clear()
+    
+def display_sub_graph(sub_graph):
+    global graph_scene
+
+    node_color = QColor("red")  # Replace "red" with the desired color value
+
+    if sub_graph is None:
+        print("Error: Sub-graph does not exist.")
+        return
+
+    pos = nx.spring_layout(sub_graph)
+
+    node_size = 20
+    node_color = QColor("red")
+    node_font_color = QColor("white")
+    edge_color = QColor("black")
+
+    graph_scene.clear()  # Clear the existing scene
+
+    # Render nodes and edges onto the scene
+    for node, position in pos.items():
+        graph_scene.addEllipse(
+            position[0] * 100,
+            position[1] * 100,
+            node_size,
+            node_size,
+            QPen(),
+            QBrush(node_color)
+        )
+        graph_scene.addText(node, QFont("Arial", 10)).setPos(position[0] * 100, position[1] * 100)
+
+    for edge in sub_graph.edges():
+        start_node = edge[0]
+        end_node = edge[1]
+        start_pos = pos[start_node]
+        end_pos = pos[end_node]
+        graph_scene.addLine(
+            start_pos[0] * 100 + node_size / 2,
+            start_pos[1] * 100 + node_size / 2,
+            end_pos[0] * 100 + node_size / 2,
+            end_pos[1] * 100 + node_size / 2,
+            QPen(edge_color),
+        )
+
+    # Set the scene on the viewgraph object
+    interface.viewgraph.setScene(graph_scene)
+
 
 def gen_graph():
     global main_graph
+
+    node_color = QColor("red")  # Replace "red" with the desired color value
+    position = (0, 0)  # Replace `x` and `y` with the desired coordinates
+    node_size = 20
+
+    # Add the ellipse to the graph scene
+    graph_scene.addEllipse(
+        position[0] * 100,
+        position[1] * 100,
+        node_size,
+        node_size,
+        QPen(),
+        QBrush(node_color)
+    )
+
     if main_graph is None:
-        print("Error: Graph doesnt exist, add some nodes first")
+        print("Error: Graph doesn't exist, add some nodes first")
         return
 
     pos = nx.spring_layout(main_graph)
 
-    node_size = 200
-    node_color = "red"
-    node_font_color = "white"
-    edge_color = "black"
+    node_size = 20
+    node_color = QColor("red")
+    node_font_color = QColor("white")
+    edge_color = QColor("black")
 
-    fig, ax = plt.subplots()
-    nx.draw_networkx_nodes(main_graph, pos, ax=ax, node_size=node_size, node_color=node_color, edgecolors="black")
-    nx.draw_networkx_labels(main_graph, pos, ax=ax, font_color=node_font_color)
-    nx.draw_networkx_edges(main_graph, pos, ax=ax, edge_color=edge_color)
+    graph_scene.clear()  # Clear the existing scene
 
-    edge_labels = nx.get_edge_attributes(main_graph, "w")
-    nx.draw_networkx_edge_labels(main_graph, pos, edge_labels=edge_labels, ax=ax)
+    # Render nodes and edges onto the scene
+    for node, position in pos.items():
+        graph_scene.addEllipse(
+            position[0] * 100,
+            position[1] * 100,
+            node_size,
+            node_size,
+            QPen(),
+            QBrush(node_color)
+        )
+        graph_scene.addText(node, QFont("Arial", 10)).setPos(position[0] * 100, position[1] * 100)
 
-    ax.axis("off")
-    plt.tight_layout()
-    plt.show()
+    for edge in main_graph.edges():
+        start_node = edge[0]
+        end_node = edge[1]
+        start_pos = pos[start_node]
+        end_pos = pos[end_node]
+        graph_scene.addLine(
+            start_pos[0] * 100 + node_size / 2,
+            start_pos[1] * 100 + node_size / 2,
+            end_pos[0] * 100 + node_size / 2,
+            end_pos[1] * 100 + node_size / 2,
+            QPen(edge_color),
+        )
+
+    # Set the scene on the viewgraph object
+    interface.viewgraph.setScene(graph_scene)
+
+
+
 def handle_direction_change(index):
     global direction
     if show_confirmation_popup():
@@ -228,63 +309,29 @@ def handle_direction_change(index):
             direction=1
 
 def process_add(n1,n2,w):
-    global direction,chkbox,informed_search,uninformed_search,main_graph
+    global direction,main_graph
     if direction == 0: # Handle undirected graph
         if main_graph is None:
             main_graph=nx.Graph()
         main_graph.add_edge(n1,n2,w=w)
         main_graph.add_edge(n2, n1, w=w)
 
-        if chkbox==0: #uninformed
-            if uninformed_search == "Breadth First Search":
-                bfs.addEdge(n1,n2,w,False)
-            elif uninformed_search == "Depth First Search":
-                dfs.addEdge(n1, n2, w, False)
-            elif uninformed_search == "Depth Limited":
-                pass
-            elif uninformed_search == "Iterative Deepening":
-                pass
-            elif uninformed_search == "Uniform Cost Search":
-                UniformCostSearch.addEdge(n1, n2, w, False)
-            elif uninformed_search == "Bidirectional Search":
-                BiDirectional.addEdge(n1, n2, w, False)
-        elif chkbox==1: #informed
-            if informed_search == "Best First":
-                pass
-            elif informed_search == "A*":
-                pass
     elif direction == 1: # Handle directed graph
         if main_graph is None:
             main_graph=nx.DiGraph()
         main_graph.add_edge(n1, n2, w=w)
-
-        if chkbox==0: #uninformed
-            if uninformed_search == "Breadth First Search":
-                bfs.addEdge(n1,n2,w,True)
-            elif uninformed_search == "Depth First Search":
-                dfs.addEdge(n1,n2,w,True)
-            elif uninformed_search == "Depth Limited":
-                pass
-            elif uninformed_search == "Iterative Deepening":
-                pass
-            elif uninformed_search == "Uniform Cost Search":
-                UniformCostSearch.addEdge(n1, n2, w, True)
-            elif uninformed_search == "Bidirectional Search":
-                BiDirectional.addEdge(n1, n2, w, True)
-        elif chkbox==1: #informed
-            if informed_search == "Best First":
-                pass
-            elif informed_search == "A*":
-                pass
-
 def process_output(s,g):
-    global direction, chkbox, informed_search, uninformed_search
-    depth=1
+    global direction, chkbox, informed_search, uninformed_search,main_graph
+    depth=1     
     if chkbox == 0:  # uninformed
         if uninformed_search == "Breadth First Search":
-            bfs.printpath(s,g)
+            listpath,sub_graph=bfs.printpath(main_graph,s,g)
+            print(listpath)
+            display_sub_graph(sub_graph)
         elif uninformed_search == "Depth First Search":
-            dfs.printpath(s,g)
+            listpath,sub_graph=dfs.printpath(main_graph,s,g)
+            print(listpath)
+         #   path(sub_graph)
         elif uninformed_search == "Depth Limited":
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             pass
@@ -292,9 +339,14 @@ def process_output(s,g):
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             pass
         elif uninformed_search == "Uniform Cost Search":
-            UniformCostSearch.printpath(s, g)
+            listpath,sub_graph=ucs.printpath(main_graph,s, g)
+            print(listpath)
+     #       path(sub_graph)
         elif uninformed_search == "Bidirectional Search":
-            BiDirectional.printpath(s, g)
+   #         listpath,sub_graph=BiDirectional.printpath(main_graph,s, g)
+     #       print(listpath)
+      #      path(sub_graph)
+            pass
     elif chkbox == 1:  # informed
         if informed_search == "Best First":
             pass

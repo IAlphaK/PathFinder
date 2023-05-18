@@ -1,4 +1,6 @@
 from collections import defaultdict
+import networkx as nx
+
 class dfsGraph:
     # Constructor
     def __init__(self):
@@ -6,29 +8,24 @@ class dfsGraph:
         self.graph = defaultdict(list)
         self.weights = defaultdict(dict)
 
-    # Function to add an edge to the graph
-    def addEdge(self, u, v, weight=1, directed=True):
-        self.graph[u].append(v)
-        self.weights[u][v] = weight
-        if not directed:
-            self.graph[v].append(u)
-            self.weights[v][u] = weight
-
-    # Function to perform DFS and print the path
-    def printpath(self, start, goals):
+    # Function to perform DFS and return the path and subgraph
+    def get_path_and_subgraph(self, graph, start, goals):
         visited = set()
-        self.dfs(start, goals, visited, [])
+        path = []
+        self.dfs(graph, start, goals, visited, path)
+
+        sub_graph = graph.subgraph(path)  # Create subgraph from the traversed nodes
+        return path, sub_graph
 
     # Recursive DFS function
-    def dfs(self, node, goals, visited, path):
+    def dfs(self, graph, node, goals, visited, path):
         visited.add(node)
         path.append(node)
-        if node == goals:
-            print(*path, sep='\n')  # Print the path
+        if node in goals:
             return True  # Goal node found, stop the traversal
-        for neighbor in self.graph[node]:
+        for neighbor in graph[node]:
             if neighbor not in visited:
-                goal_found = self.dfs(neighbor, goals, visited, path)
+                goal_found = self.dfs(graph, neighbor, goals, visited, path)
                 if goal_found:
                     return True  # Goal node found, stop the traversal
         path.pop()  # Remove the current node from the path
