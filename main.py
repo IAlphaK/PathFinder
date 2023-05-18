@@ -6,10 +6,18 @@ from PyQt6.QtWidgets import QGraphicsScene
 import sys
 from bfs import Graph
 
+
+
+
+
+
 app = QApplication(sys.argv)
 main_window = QMainWindow()
 interface = python_ui.Ui_MainWindow()
 interface.setupUi(main_window)
+
+#intialising algorthims variables
+bfs=Graph()
 
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
@@ -121,7 +129,7 @@ def add_node():
         QMessageBox.warning(main_window, "Invalid Input", "Weight should be an integer.")
         return
 
-    process_add(node1,node2,weight, direction)
+    process_add(node1,node2,weight)
     # Clear the qlines
     node1_qline.clear()
     node2_qline.clear()
@@ -161,6 +169,7 @@ def start_to_goal_path():
             QMessageBox.warning(main_window, "Invalid Input", "Goal nodes should be letters separated by commas.")
             return
 
+    process_output('start_to_goal_path', start_node, goal_node)
     # Clear the qlines
     start_node_qline.clear()
     goal_nodes_qline.clear()
@@ -181,6 +190,7 @@ def start_to_goal_graph():
             QMessageBox.warning(main_window, "Invalid Input", "Goal nodes should be letters separated by commas.")
             return
 
+    process_output('start_to_goal_graph', start_node, goal_node)
     # Clear the qlines
     start_node_qline.clear()
     goal_nodes_qline.clear()
@@ -200,7 +210,8 @@ def handle_direction_change(index):
         elif selected_direction == "Directed Graph":
             direction=1
 
-def process_add(n1,n2,w, direction):
+def process_add(n1,n2,w):
+    global direction,chkbox,informed_search,uninformed_search
     if direction == 0: # Handle undirected graph
         if chkbox==0: #uninformed
             if uninformed_search == "Breadth First Search":
@@ -240,8 +251,8 @@ def process_add(n1,n2,w, direction):
             elif informed_search == "A*":
                 pass
 
-def process_output(fx_name,s,g,direction):
-
+def process_output(fx_name,s,g):
+    global direction, chkbox, informed_search, uninformed_search
     if fx_name == 'start_to_goal_path':
         if direction == 0:  # Handle undirected graph
             if chkbox == 0:  # uninformed
