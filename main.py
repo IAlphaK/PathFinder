@@ -8,7 +8,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from bfs import bfsGraph
 from dfs import dfsGraph
-
+from BiDirectional import BidirectionalGraph
 from UniformCostSearch import UCS_Graph
 
 
@@ -24,6 +24,7 @@ main_graph= None
 #intialising algorthims variables
 bfs=bfsGraph()
 dfs=dfsGraph()
+BiDirectional=BidirectionalGraph()
 UniformCostSearch=UCS_Graph()
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
@@ -240,7 +241,7 @@ def process_add(n1,n2,w):
             elif uninformed_search == "Uniform Cost Search":
                 UniformCostSearch.addEdge(n1, n2, w, False)
             elif uninformed_search == "Bidirectional Search":
-                pass
+                BiDirectional.addEdge(n1, n2, w, False)
         elif chkbox==1: #informed
             if informed_search == "Best First":
                 pass
@@ -263,7 +264,7 @@ def process_add(n1,n2,w):
             elif uninformed_search == "Uniform Cost Search":
                 UniformCostSearch.addEdge(n1, n2, w, True)
             elif uninformed_search == "Bidirectional Search":
-                pass
+                BiDirectional.addEdge(n1, n2, w, True)
         elif chkbox==1: #informed
             if informed_search == "Best First":
                 pass
@@ -284,7 +285,7 @@ def process_output(s,g):
         elif uninformed_search == "Uniform Cost Search":
             UniformCostSearch.printpath(s, g)
         elif uninformed_search == "Bidirectional Search":
-            pass
+            BiDirectional.printpath(s, g)
     elif chkbox == 1:  # informed
         if informed_search == "Best First":
             pass
