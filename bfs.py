@@ -1,6 +1,6 @@
 import networkx as nx
 
-def printpath(graph, start, goals):
+def printPath(graph, start, goals):
     queue = []
     visited = set()
     queue.append((start, [start]))  # Store the node and its path
@@ -19,8 +19,8 @@ def printpath(graph, start, goals):
             for i in range(len(path) - 1):
                 source = path[i]
                 target = path[i + 1]
-                weight = graph.get_edge_data(source, target).get('weight', 0)  # Get the weight of the edge with a default value of 0
-                path_graph.add_edge(source, target, weight=weight)
+                weight = graph.get_edge_data(source, target)['w']
+                path_graph.add_edge(source, target, w=weight)
             return traversal_path, path_graph.subgraph(traversal_path)  # Return the complete traversal path and the subgraph
 
         neighbors = graph.neighbors(node)  # Get the neighbors of the current node from the graph
@@ -29,8 +29,8 @@ def printpath(graph, start, goals):
             if neighbor not in visited:
                 queue.append((neighbor, path + [neighbor]))  # Update the path
                 visited.add(neighbor)
-                weight = graph.get_edge_data(node, neighbor).get('weight', 0)  # Get the weight of the edge with a default value of 0
-                path_graph.add_edge(node, neighbor, weight=weight)  # Add the edge with its weight to the path graph
+                weight = graph.get_edge_data(node, neighbor)['w']  # Get the weight of the edge
+                path_graph.add_edge(node, neighbor, w=weight)  # Add the edge with its weight to the path graph
 
-    # If the goal node is not found, return None or a custom value
+    # If goal node is not found, return None or a custom value
     return None, None

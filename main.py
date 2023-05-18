@@ -8,7 +8,8 @@ import sys
 import networkx as nx
 import matplotlib.pyplot as plt
 import bfs
-from dfs import dfsGraph
+import dfs
+import dls
 from ucs import UCS_Graph
 
 
@@ -28,7 +29,6 @@ root.withdraw()
 #intialise graph
 main_graph= None
 #intialising algorthims variables
-dfs = dfsGraph()
 ucs=UCS_Graph()
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
@@ -188,7 +188,7 @@ def start_to_goal_path():
 def display_sub_graph(sub_graph):
     global graph_scene
 
-    node_color = QColor("green")  # Replace "red" with the desired color value
+    node_color = QColor("green")  # Replace "green" with the desired color value
 
     if sub_graph is None:
         print("Error: Sub-graph does not exist.")
@@ -220,6 +220,7 @@ def display_sub_graph(sub_graph):
         end_node = edge[1]
         start_pos = pos[start_node]
         end_pos = pos[end_node]
+        weight = str(sub_graph[start_node][end_node]['w'])  # Get the weight of the edge
         graph_scene.addLine(
             start_pos[0] * 100 + node_size / 2,
             start_pos[1] * 100 + node_size / 2,
@@ -227,6 +228,9 @@ def display_sub_graph(sub_graph):
             end_pos[1] * 100 + node_size / 2,
             QPen(edge_color),
         )
+        # Display the weight as text near the edge
+        text_item = graph_scene.addText(weight, QFont("Arial", 8))
+        text_item.setPos((start_pos[0] + end_pos[0]) * 50, (start_pos[1] + end_pos[1]) * 50)
 
     # Set the scene on the viewgraph object
     interface.viewgraph.setScene(graph_scene)
@@ -279,6 +283,9 @@ def gen_graph():
         end_node = edge[1]
         start_pos = pos[start_node]
         end_pos = pos[end_node]
+        weight = str(main_graph[start_node][end_node]['w'])  # Get the weight of the edge
+        x = (start_pos[0] + end_pos[0]) * 50 + node_size / 2  # Calculate the x-coordinate for the weight text
+        y = (start_pos[1] + end_pos[1]) * 50 + node_size / 2  # Calculate the y-coordinate for the weight text
         graph_scene.addLine(
             start_pos[0] * 100 + node_size / 2,
             start_pos[1] * 100 + node_size / 2,
@@ -286,9 +293,11 @@ def gen_graph():
             end_pos[1] * 100 + node_size / 2,
             QPen(edge_color),
         )
+        graph_scene.addText(weight, QFont("Arial", 8)).setPos(x, y)  # Display the weight as text
 
     # Set the scene on the viewgraph object
     interface.viewgraph.setScene(graph_scene)
+
 
 
 
@@ -325,23 +334,25 @@ def process_output(s,g):
     depth=1     
     if chkbox == 0:  # uninformed
         if uninformed_search == "Breadth First Search":
-            listpath,sub_graph=bfs.printpath(main_graph,s,g)
+            listpath,sub_graph=bfs.printPath(main_graph,s,g)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Depth First Search":
-            listpath,sub_graph=dfs.printpath(main_graph,s,g)
+            listpath,sub_graph=dfs.printPath(main_graph,s,g)
             print(listpath)
-         #   path(sub_graph)
+            display_sub_graph(sub_graph)
         elif uninformed_search == "Depth Limited":
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
-            pass
+            listpath,sub_graph=dls.printPath(main_graph,s,g,depth)
+            print(listpath)
+            display_sub_graph(sub_graph)
         elif uninformed_search == "Iterative Deepening":
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             pass
         elif uninformed_search == "Uniform Cost Search":
             listpath,sub_graph=ucs.printpath(main_graph,s, g)
             print(listpath)
-     #       path(sub_graph)
+            display_sub_graph(sub_graph)
         elif uninformed_search == "Bidirectional Search":
    #         listpath,sub_graph=BiDirectional.printpath(main_graph,s, g)
      #       print(listpath)

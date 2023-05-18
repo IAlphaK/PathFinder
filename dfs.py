@@ -1,32 +1,36 @@
-from collections import defaultdict
 import networkx as nx
 
-class dfsGraph:
-    # Constructor
-    def __init__(self):
-        # Default dictionary to store graph
-        self.graph = defaultdict(list)
-        self.weights = defaultdict(dict)
+def printPath(graph, start, goals):
+    stack = []
+    visited = set()
+    stack.append((start, [start]))  # Store the node and its path
 
-    # Function to perform DFS and return the path and subgraph
-    def get_path_and_subgraph(self, graph, start, goals):
-        visited = set()
-        path = []
-        self.dfs(graph, start, goals, visited, path)
+    traversal_path = []  # Store the complete traversal path
 
-        sub_graph = graph.subgraph(path)  # Create subgraph from the traversed nodes
-        return path, sub_graph
+    path_graph = nx.Graph()  # Create an empty graph to store the path
 
-    # Recursive DFS function
-    def dfs(self, graph, node, goals, visited, path):
+    while stack:
+        node, path = stack.pop()
+        traversal_path.append(node)  # Store the visited node in the traversal path
         visited.add(node)
-        path.append(node)
+        path_graph.add_node(node)  # Add the visited node to the path graph
+
         if node in goals:
-            return True  # Goal node found, stop the traversal
-        for neighbor in graph[node]:
+            for i in range(len(path) - 1):
+                source = path[i]
+                target = path[i + 1]
+                weight = graph.get_edge_data(source, target)['w']
+                path_graph.add_edge(source, target, w=weight)
+            return traversal_path, path_graph.subgraph(traversal_path)  # Return the complete traversal path and the subgraph
+
+        neighbors = graph.neighbors(node)  # Get the neighbors of the current node from the graph
+
+        for neighbor in neighbors:
             if neighbor not in visited:
-                goal_found = self.dfs(graph, neighbor, goals, visited, path)
-                if goal_found:
-                    return True  # Goal node found, stop the traversal
-        path.pop()  # Remove the current node from the path
-        return False  # Goal node not found in the current traversal
+                stack.append((neighbor, path + [neighbor]))  # Update the path
+                visited.add(neighbor)
+                weight = graph.get_edge_data(node, neighbor)['w']  # Get the weight of the edge
+                path_graph.add_edge(node, neighbor, w=weight)  # Add the edge with its weight to the path graph
+
+    # If goal node is not found, return None or a custom value
+    return None, None
