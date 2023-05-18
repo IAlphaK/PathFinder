@@ -4,12 +4,24 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor, QPen
 from PyQt6.QtWidgets import QGraphicsScene
 import sys
+import networkx as nx
+import matplotlib.pyplot as plt
 from bfs import Graph
+
+
+
+
+
 
 app = QApplication(sys.argv)
 main_window = QMainWindow()
 interface = python_ui.Ui_MainWindow()
 interface.setupUi(main_window)
+
+#intialise graph
+main_graph= None
+#intialising algorthims variables
+bfs=Graph()
 
 # Store references to the checkboxes and comboboxes
 chk_inform = interface.chk_inform
@@ -121,7 +133,7 @@ def add_node():
         QMessageBox.warning(main_window, "Invalid Input", "Weight should be an integer.")
         return
 
-    process_add(node1,node2,weight, direction)
+    process_add(node1,node2,weight)
     # Clear the qlines
     node1_qline.clear()
     node2_qline.clear()
@@ -161,29 +173,35 @@ def start_to_goal_path():
             QMessageBox.warning(main_window, "Invalid Input", "Goal nodes should be letters separated by commas.")
             return
 
+    process_output(start_node, goal_node)
     # Clear the qlines
     start_node_qline.clear()
     goal_nodes_qline.clear()
 
-def start_to_goal_graph():
-    # Get the text entered in qlines
-    start_node = start_node_qline.text()
-    goal_nodes = goal_nodes_qline.text()
-
-    # Perform validation on the inputs
-    if not start_node.isalpha():
-        QMessageBox.warning(main_window, "Invalid Input", "Start node should be a single letter.")
+def gen_graph():
+    global main_graph
+    if main_graph is None:
+        print("Error: Graph doesnt exist, add some nodes first")
         return
 
-    goal_nodes_list = goal_nodes.split(",")
-    for goal_node in goal_nodes_list:
-        if not goal_node.isalpha():
-            QMessageBox.warning(main_window, "Invalid Input", "Goal nodes should be letters separated by commas.")
-            return
+    pos = nx.spring_layout(main_graph)
 
-    # Clear the qlines
-    start_node_qline.clear()
-    goal_nodes_qline.clear()
+    node_size = 200
+    node_color = "red"
+    node_font_color = "white"
+    edge_color = "black"
+
+    fig, ax = plt.subplots()
+    nx.draw_networkx_nodes(main_graph, pos, ax=ax, node_size=node_size, node_color=node_color, edgecolors="black")
+    nx.draw_networkx_labels(main_graph, pos, ax=ax, font_color=node_font_color)
+    nx.draw_networkx_edges(main_graph, pos, ax=ax, edge_color=edge_color)
+
+    edge_labels = nx.get_edge_attributes(main_graph, "w")
+    nx.draw_networkx_edge_labels(main_graph, pos, edge_labels=edge_labels, ax=ax)
+
+    ax.axis("off")
+    plt.tight_layout()
+    plt.show()
 def handle_direction_change(index):
     global direction
     if show_confirmation_popup():
@@ -200,11 +218,17 @@ def handle_direction_change(index):
         elif selected_direction == "Directed Graph":
             direction=1
 
-def process_add(n1,n2,w, direction):
+def process_add(n1,n2,w):
+    global direction,chkbox,informed_search,uninformed_search,main_graph
     if direction == 0: # Handle undirected graph
+        if main_graph is None:
+            main_graph=nx.Graph()
+        main_graph.add_edge(n1,n2,w=w)
+        main_graph.add_edge(n2, n1, w=w)
+
         if chkbox==0: #uninformed
             if uninformed_search == "Breadth First Search":
-                pass
+                bfs.addEdge(n1,n2,w,False)
             elif uninformed_search == "Depth First Search":
                 pass
             elif uninformed_search == "Depth Limited":
@@ -221,9 +245,13 @@ def process_add(n1,n2,w, direction):
             elif informed_search == "A*":
                 pass
     elif direction == 1: # Handle directed graph
+        if main_graph is None:
+            main_graph=nx.DiGraph()
+        main_graph.add_edge(n1, n2, w=w)
+
         if chkbox==0: #uninformed
             if uninformed_search == "Breadth First Search":
-                pass
+                bfs.addEdge(n1,n2,w,True)
             elif uninformed_search == "Depth First Search":
                 pass
             elif uninformed_search == "Depth Limited":
@@ -240,8 +268,29 @@ def process_add(n1,n2,w, direction):
             elif informed_search == "A*":
                 pass
 
-def process_output(fx_name,s,g,direction):
+def process_output(s,g):
+    global direction, chkbox, informed_search, uninformed_search
+    if chkbox == 0:  # uninformed
+        if uninformed_search == "Breadth First Search":
+            bfs.printpath(s,g)
+        elif uninformed_search == "Depth First Search":
+            pass
+        elif uninformed_search == "Depth Limited":
+            pass
+        elif uninformed_search == "Iterative Deepening":
+            pass
+        elif uninformed_search == "Uniform Cost Search":
+            pass
+        elif uninformed_search == "Bidirectional Search":
+            pass
+    elif chkbox == 1:  # informed
+        if informed_search == "Best First":
+            pass
+        elif informed_search == "A*":
+            pass
 
+
+<<<<<<< HEAD
     if fx_name == 'start_to_goal_path':
         if direction == 0:  # Handle undirected graph
             if chkbox == 0:  # uninformed
@@ -320,6 +369,8 @@ def process_output(fx_name,s,g,direction):
                     pass
                 elif informed_search == "A*":
                     pass
+=======
+>>>>>>> adding-algorithms
 
 # Connect the signals to their respective slots
 chk_inform.stateChanged.connect(handle_chk_inform)
@@ -329,7 +380,7 @@ informed_dropdown.currentIndexChanged.connect(handle_informed_dropdown_change)
 direction_dropdown.currentIndexChanged.connect(handle_direction_change)
 
 interface.gen_path.clicked.connect(start_to_goal_path)
-interface.gen_graph.clicked.connect(start_to_goal_graph)
+interface.gen_graph.clicked.connect(gen_graph)
 interface.node_add.clicked.connect(add_node)
 interface.addnode_heu.clicked.connect(add_heunode)
 
