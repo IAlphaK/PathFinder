@@ -1,10 +1,10 @@
 import networkx as nx
 
-def printPath(graph, start, goals, max_depth):
-    traversal_path = []  # Store the complete traversal path
+def printPath(graph, start, goals, depth_limit):
     path_graph = nx.Graph()  # Create an empty graph to store the path
+    traversal_path = []  # Store the complete traversal path
 
-    for depth_limit in range(max_depth + 1):
+    for limit in range(depth_limit+1):
         visited = set()
         stack = [(start, [start], 0)]  # Store the node, its path, and the current depth
 
@@ -12,7 +12,7 @@ def printPath(graph, start, goals, max_depth):
             node, path, depth = stack.pop()
             visited.add(node)
 
-            if depth < depth_limit:
+            if depth <= limit:
                 traversal_path.append(node)  # Store the visited node in the traversal path
                 path_graph.add_node(node)  # Add the visited node to the path graph
 
