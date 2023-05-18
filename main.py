@@ -3,6 +3,8 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QGraphicsIte
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor, QPen
 from PyQt6.QtWidgets import QGraphicsScene
+import tkinter as tk
+from tkinter import simpledialog
 import sys
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -18,6 +20,10 @@ app = QApplication(sys.argv)
 main_window = QMainWindow()
 interface = python_ui.Ui_MainWindow()
 interface.setupUi(main_window)
+
+#for depth popup
+root = tk.Tk()
+root.withdraw()
 
 #intialise graph
 main_graph= None
@@ -273,14 +279,17 @@ def process_add(n1,n2,w):
 
 def process_output(s,g):
     global direction, chkbox, informed_search, uninformed_search
+    depth=1
     if chkbox == 0:  # uninformed
         if uninformed_search == "Breadth First Search":
             bfs.printpath(s,g)
         elif uninformed_search == "Depth First Search":
             dfs.printpath(s,g)
         elif uninformed_search == "Depth Limited":
+            depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             pass
         elif uninformed_search == "Iterative Deepening":
+            depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             pass
         elif uninformed_search == "Uniform Cost Search":
             UniformCostSearch.printpath(s, g)
