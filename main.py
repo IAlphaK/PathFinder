@@ -38,8 +38,8 @@ goal_nodes_qline = interface.i_goalnode
 
 direction=0 #0 is undirected, 1 is directed
 chkbox=0 #0 is uninformed, 1 is informed
-informed_search = "Breadth First Search"  # store the selected informed search algorithm
-uninformed_search = "Best First"  # store the selected uninformed search algorithm
+informed_search = "Best First"  # store the selected informed search algorithm
+uninformed_search = "Breadth First Search"  # store the selected uninformed search algorithm
 def show_confirmation_popup():
     # Check if there is any previous progress
     if (
@@ -121,6 +121,7 @@ def add_node():
         QMessageBox.warning(main_window, "Invalid Input", "Weight should be an integer.")
         return
 
+    process_add(node1,node2,weight, direction)
     # Clear the qlines
     node1_qline.clear()
     node2_qline.clear()
@@ -144,7 +145,7 @@ def add_heunode():
     # Clear the qlines
     inode_qline.clear()
     heu_qline.clear()
-def start_to_goal():
+def start_to_goal_path():
     # Get the text entered in qlines
     start_node = start_node_qline.text()
     goal_nodes = goal_nodes_qline.text()
@@ -164,6 +165,25 @@ def start_to_goal():
     start_node_qline.clear()
     goal_nodes_qline.clear()
 
+def start_to_goal_graph():
+    # Get the text entered in qlines
+    start_node = start_node_qline.text()
+    goal_nodes = goal_nodes_qline.text()
+
+    # Perform validation on the inputs
+    if not start_node.isalpha():
+        QMessageBox.warning(main_window, "Invalid Input", "Start node should be a single letter.")
+        return
+
+    goal_nodes_list = goal_nodes.split(",")
+    for goal_node in goal_nodes_list:
+        if not goal_node.isalpha():
+            QMessageBox.warning(main_window, "Invalid Input", "Goal nodes should be letters separated by commas.")
+            return
+
+    # Clear the qlines
+    start_node_qline.clear()
+    goal_nodes_qline.clear()
 def handle_direction_change(index):
     global direction
     if show_confirmation_popup():
@@ -180,6 +200,127 @@ def handle_direction_change(index):
         elif selected_direction == "Directed Graph":
             direction=1
 
+def process_add(n1,n2,w, direction):
+    if direction == 0: # Handle undirected graph
+        if chkbox==0: #uninformed
+            if uninformed_search == "Breadth First Search":
+                pass
+            elif uninformed_search == "Depth First Search":
+                pass
+            elif uninformed_search == "Depth Limited":
+                pass
+            elif uninformed_search == "Iterative Deepening":
+                pass
+            elif uninformed_search == "Uniform Cost Search":
+                pass
+            elif uninformed_search == "Bidirectional Search":
+                pass
+        elif chkbox==1: #informed
+            if informed_search == "Best First":
+                pass
+            elif informed_search == "A*":
+                pass
+    elif direction == 1: # Handle directed graph
+        if chkbox==0: #uninformed
+            if uninformed_search == "Breadth First Search":
+                pass
+            elif uninformed_search == "Depth First Search":
+                pass
+            elif uninformed_search == "Depth Limited":
+                pass
+            elif uninformed_search == "Iterative Deepening":
+                pass
+            elif uninformed_search == "Uniform Cost Search":
+                pass
+            elif uninformed_search == "Bidirectional Search":
+                pass
+        elif chkbox==1: #informed
+            if informed_search == "Best First":
+                pass
+            elif informed_search == "A*":
+                pass
+
+def process_output(fx_name,s,g,direction):
+
+    if fx_name == 'start_to_goal_path':
+        if direction == 0:  # Handle undirected graph
+            if chkbox == 0:  # uninformed
+                if uninformed_search == "Breadth First Search":
+                    pass
+                elif uninformed_search == "Depth First Search":
+                    pass
+                elif uninformed_search == "Depth Limited":
+                    pass
+                elif uninformed_search == "Iterative Deepening":
+                    pass
+                elif uninformed_search == "Uniform Cost Search":
+                    pass
+                elif uninformed_search == "Bidirectional Search":
+                    pass
+            elif chkbox == 1:  # informed
+                if informed_search == "Best First":
+                    pass
+                elif informed_search == "A*":
+                    pass
+        elif direction == 1:  # Handle directed graph
+            if chkbox == 0:  # uninformed
+                if uninformed_search == "Breadth First Search":
+                    pass
+                elif uninformed_search == "Depth First Search":
+                    pass
+                elif uninformed_search == "Depth Limited":
+                    pass
+                elif uninformed_search == "Iterative Deepening":
+                    pass
+                elif uninformed_search == "Uniform Cost Search":
+                    pass
+                elif uninformed_search == "Bidirectional Search":
+                    pass
+            elif chkbox == 1:  # informed
+                if informed_search == "Best First":
+                    pass
+                elif informed_search == "A*":
+                    pass
+    elif fx_name == 'start_to_goal_graph':
+        if direction == 0:  # Handle undirected graph
+            if chkbox == 0:  # uninformed
+                if uninformed_search == "Breadth First Search":
+                    pass
+                elif uninformed_search == "Depth First Search":
+                    pass
+                elif uninformed_search == "Depth Limited":
+                    pass
+                elif uninformed_search == "Iterative Deepening":
+                    pass
+                elif uninformed_search == "Uniform Cost Search":
+                    pass
+                elif uninformed_search == "Bidirectional Search":
+                    pass
+            elif chkbox == 1:  # informed
+                if informed_search == "Best First":
+                    pass
+                elif informed_search == "A*":
+                    pass
+        elif direction == 1:  # Handle directed graph
+            if chkbox == 0:  # uninformed
+                if uninformed_search == "Breadth First Search":
+                    pass
+                elif uninformed_search == "Depth First Search":
+                    pass
+                elif uninformed_search == "Depth Limited":
+                    pass
+                elif uninformed_search == "Iterative Deepening":
+                    pass
+                elif uninformed_search == "Uniform Cost Search":
+                    pass
+                elif uninformed_search == "Bidirectional Search":
+                    pass
+            elif chkbox == 1:  # informed
+                if informed_search == "Best First":
+                    pass
+                elif informed_search == "A*":
+                    pass
+
 # Connect the signals to their respective slots
 chk_inform.stateChanged.connect(handle_chk_inform)
 chk_uninform.stateChanged.connect(handle_chk_uninform)
@@ -187,8 +328,8 @@ uninformed_dropdown.currentIndexChanged.connect(handle_uninformed_dropdown_chang
 informed_dropdown.currentIndexChanged.connect(handle_informed_dropdown_change)
 direction_dropdown.currentIndexChanged.connect(handle_direction_change)
 
-interface.gen_path.clicked.connect(start_to_goal)
-interface.gen_graph.clicked.connect(start_to_goal)
+interface.gen_path.clicked.connect(start_to_goal_path)
+interface.gen_graph.clicked.connect(start_to_goal_graph)
 interface.node_add.clicked.connect(add_node)
 interface.addnode_heu.clicked.connect(add_heunode)
 
