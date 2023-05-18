@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QBrush, QColor, QPen
 from PyQt6.QtWidgets import QGraphicsScene
 import sys
+from bfs import Graph
 
 app = QApplication(sys.argv)
 main_window = QMainWindow()
@@ -35,6 +36,10 @@ weight_qline = interface.i_weight
 start_node_qline = interface.i_startnode
 goal_nodes_qline = interface.i_goalnode
 
+direction=0 #0 is undirected, 1 is directed
+chkbox=0 #0 is uninformed, 1 is informed
+informed_search = "Breadth First Search"  # store the selected informed search algorithm
+uninformed_search = "Best First"  # store the selected uninformed search algorithm
 def show_confirmation_popup():
     # Check if there is any previous progress
     if (
@@ -64,6 +69,7 @@ def show_confirmation_popup():
 def handle_chk_inform():
     if show_confirmation_popup():
         if chk_inform.isChecked():
+            chkbox = 1
             chk_uninform.setChecked(False)
             uninformed_dropdown.setEnabled(False)
             i_informedheu.setEnabled(True)
@@ -71,6 +77,7 @@ def handle_chk_inform():
             addnode_heu.setEnabled(True)
             informed_dropdown.setEnabled(True)
         else:
+            chkbox = 0
             i_informedheu.setEnabled(False)
             i_informednode.setEnabled(False)
             addnode_heu.setEnabled(False)
@@ -79,6 +86,7 @@ def handle_chk_inform():
 def handle_chk_uninform():
     if show_confirmation_popup():
         if chk_uninform.isChecked():
+            chkbox = 0
             chk_inform.setChecked(False)
             uninformed_dropdown.setEnabled(True)
             i_informedheu.setEnabled(False)
@@ -87,15 +95,17 @@ def handle_chk_uninform():
             informed_dropdown.setEnabled(False)
 
 def handle_informed_dropdown_change(index):
+    global informed_search
     if show_confirmation_popup():
-        # Handle the change in informed_dropdown
-        pass
-
+        selected_algorithm = informed_dropdown.itemText(index)
+        # Store the selected informed search algorithm
+        informed_search = selected_algorithm
 def handle_uninformed_dropdown_change(index):
+    global uninformed_search
     if show_confirmation_popup():
-        # Handle the change in uninformed_dropdown
-        pass
-
+        selected_algorithm = uninformed_dropdown.itemText(index)
+        # Store the selected uninformed search algorithm
+        uninformed_search = selected_algorithm
 def add_node():
     # Get the text entered in qlines
     node1 = node1_qline.text()
@@ -155,6 +165,7 @@ def start_to_goal():
     goal_nodes_qline.clear()
 
 def handle_direction_change(index):
+    global direction
     if show_confirmation_popup():
         selected_direction = direction_dropdown.itemText(index)
         # Clear the qlines
@@ -165,11 +176,9 @@ def handle_direction_change(index):
         goal_nodes_qline.clear()
         # Process the selected direction
         if selected_direction == "Undirected Graph":
-            # TODO: Handle undirected graph
-            pass
+            direction=0
         elif selected_direction == "Directed Graph":
-            # TODO: Handle directed graph
-            pass
+            direction=1
 
 # Connect the signals to their respective slots
 chk_inform.stateChanged.connect(handle_chk_inform)
@@ -178,7 +187,8 @@ uninformed_dropdown.currentIndexChanged.connect(handle_uninformed_dropdown_chang
 informed_dropdown.currentIndexChanged.connect(handle_informed_dropdown_change)
 direction_dropdown.currentIndexChanged.connect(handle_direction_change)
 
-interface.submit.clicked.connect(start_to_goal)
+interface.gen_path.clicked.connect(start_to_goal)
+interface.gen_graph.clicked.connect(start_to_goal)
 interface.node_add.clicked.connect(add_node)
 interface.addnode_heu.clicked.connect(add_heunode)
 

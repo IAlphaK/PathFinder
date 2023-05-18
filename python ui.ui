@@ -1549,7 +1549,7 @@
    <widget class="QLineEdit" name="i_startnode">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>640</x>
       <y>70</y>
       <width>113</width>
       <height>25</height>
@@ -1559,7 +1559,7 @@
    <widget class="QLineEdit" name="i_goalnode">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>640</x>
       <y>120</y>
       <width>113</width>
       <height>25</height>
@@ -1569,7 +1569,7 @@
    <widget class="QLabel" name="start_node">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>640</x>
       <y>50</y>
       <width>81</width>
       <height>17</height>
@@ -1582,7 +1582,7 @@
    <widget class="QLabel" name="goal_node">
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>640</x>
       <y>100</y>
       <width>71</width>
       <height>17</height>
@@ -1592,23 +1592,10 @@
      <string>Goal Nodes</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="submit">
-    <property name="geometry">
-     <rect>
-      <x>700</x>
-      <y>100</y>
-      <width>80</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Submit</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="gen_path">
     <property name="geometry">
      <rect>
-      <x>800</x>
+      <x>780</x>
       <y>80</y>
       <width>101</width>
       <height>25</height>
@@ -1621,8 +1608,8 @@
    <widget class="QPushButton" name="gen_graph">
     <property name="geometry">
      <rect>
-      <x>800</x>
-      <y>120</y>
+      <x>780</x>
+      <y>110</y>
       <width>101</width>
       <height>25</height>
      </rect>
