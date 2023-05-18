@@ -188,7 +188,7 @@ def start_to_goal_path():
 def display_sub_graph(sub_graph):
     global graph_scene
 
-    node_color = QColor("red")  # Replace "red" with the desired color value
+    node_color = QColor("green")  # Replace "red" with the desired color value
 
     if sub_graph is None:
         print("Error: Sub-graph does not exist.")
@@ -197,9 +197,9 @@ def display_sub_graph(sub_graph):
     pos = nx.spring_layout(sub_graph)
 
     node_size = 20
-    node_color = QColor("red")
+    node_color = QColor("green")
     node_font_color = QColor("white")
-    edge_color = QColor("black")
+    edge_color = QColor("red")
 
     graph_scene.clear()  # Clear the existing scene
 
