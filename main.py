@@ -355,28 +355,34 @@ def process_output(s, g):
     depth = 1
     if interface.chk_uninform.isChecked():  # uninformed
         if uninformed_search == "Breadth First Search":
+            print("Breadth First Search")
             listpath, sub_graph = bfs.printPath(main_graph, s, g)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Depth First Search":
+            print("Depth First Search")
             listpath, sub_graph = dfs.printPath(main_graph, s, g)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Depth Limited":
+            print("Depth limited Search")
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             listpath, sub_graph = dls.printPath(main_graph, s, g, depth)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Iterative Deepening":
+            print("iterative deepening Search")
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             listpath, sub_graph = ids.printPath(main_graph, s, g, depth)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Uniform Cost Search":
+            print("Uniform cost Search")
             listpath, sub_graph = ucs.printPath(main_graph, s, g)
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Bidirectional Search":
+            print("Bidirectional Search")
             listpath, sub_graph = bid.printPath(main_graph, s, g)
             print(listpath)
             display_sub_graph(sub_graph)
