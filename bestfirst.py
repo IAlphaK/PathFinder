@@ -1,67 +1,41 @@
 import networkx as nx
+import heapq
 
-
-def generate_graph(main_graph,node1, node2, weight):
-    """
-    Generate a graph without using networkx library, with node1, node2, weight, and heuristic values.
-    Initialize all heuristic values to 0.
-    Returns the graph generated using networkx library.
-    """
-    graph = []
-    graph.append((node1, node2, weight, 0))  # Assuming the graph is an edge list with (node1, node2, weight, heuristic) format
-
-    # Add more edges to the graph if needed
-
-    # Generate the graph using networkx library
-    if main_graph is None:
-        main_graph = nx.Graph()
-    for edge in graph:
-        main_graph.add_edge(edge[0], edge[1], weight=edge[2])
-
-    return main_graph
-
-
-def add_heuristic_value(graph, informed_node, heuristic_value):
-    """
-    Check if the informed_node exists in the graph and update its heuristic value.
-    """
-    if informed_node in graph.nodes:
-        graph.nodes[informed_node]['heuristic'] = heuristic_value
-        print(informed_node, " Heuristic value set to: ", heuristic_value)
-    else:
-         print("Node does not exist")
-
-
-def best_first_search(graph, start_node, goal_nodes):
-    """
-    Traverse the graph using the Best First Search algorithm based on the graph generated without networkx library.
-    Returns the path found by the Best First Search algorithm and the sub-graph generated using networkx library.
-    """
+def printPath(graph, start_state, goal_states, heuristic):
     visited = set()
-    priority_queue = [(start_node, 0)]
-    path = []
-    sub_graph = nx.Graph()
+    queue = [(heuristic(start_state), start_state, [])]  # (heuristic_value, current_node, path)
 
-    while priority_queue:
-        current_node, _ = priority_queue.pop(0)
+    traversal_path = []  # Store the complete traversal path
+    path_graph = nx.Graph()  # Create an empty graph to store the path
+    path_graph.add_node(start_state)  # Add the start node to the traversal graph
 
-        if current_node in visited:
+    while queue:
+        _, current_state, path = heapq.heappop(queue)
+
+        if current_state in visited:
             continue
 
-        visited.add(current_node)
-        path.append(current_node)
-        sub_graph.add_node(current_node)
+        visited.add(current_state)
+        path.append(current_state)
+        traversal_path.append(current_state)
+        path_graph.add_node(current_state)  # Add the current state to the traversal graph
 
-        if current_node in goal_nodes:
-            break
+        if current_state in goal_states:
+            for i in range(len(path) - 1):
+                source = path[i]
+                target = path[i + 1]
+                weight = graph.get_edge_data(source, target)['w']
+                path_graph.add_edge(source, target, weight=weight)
+            return traversal_path, path_graph.subgraph(traversal_path)  # Return the traversal path and the subgraph
 
-        neighbors = graph.neighbors(current_node)
-        for neighbor in neighbors:
-            if neighbor not in visited:
-                priority = graph[current_node][neighbor]['weight'] + graph.nodes[neighbor].get('heuristic', 0)
-                priority_queue.append((neighbor, priority))
-                sub_graph.add_edge(current_node, neighbor)
+        if current_state in graph:
+            neighbors = graph[current_state]
+            for neighbor_state, edge_data in neighbors.items():
+                if neighbor_state not in visited:
+                    priority = heuristic(neighbor_state)
+                    heapq.heappush(queue, (priority, neighbor_state, path[:]))
+                    path_graph.add_edge(current_state, neighbor_state, weight=edge_data['w'])  # Add the edge to the traversal graph
 
-        priority_queue.sort(key=lambda x: x[1])
+    return None, None  # No path found, return an empty path and empty graph
 
-    return path, sub_graph
+

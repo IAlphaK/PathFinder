@@ -160,9 +160,10 @@ inode_qline = interface.i_informednode
 heu_qline = interface.i_informedheu
 
 
+heu_dic = {}
 def add_heunode():
 
-    global main_graph
+    global main_graph,heu_dic
     # Get the text entered in qlines
     node1 = inode_qline.text()
     heu = heu_qline.text()
@@ -176,9 +177,9 @@ def add_heunode():
         QMessageBox.warning(main_window, "Invalid Input", "Weight should be an integer.")
         return
     # Clear the qlines
+    print(node1, " : ", heu)
+    heu_dic[node1] = int(heu)
 
-    bestfirst.add_heuristic_value(main_graph, node1, heu)
-    astar.add_heuristic_value(main_graph, node1, heu)
     inode_qline.clear()
     heu_qline.clear()
 
@@ -337,30 +338,22 @@ def handle_direction_change(index):
 
 
 def process_add(n1, n2, w):
-    global direction, main_graph, informed_search
-    if chkbox==0:
-        print("Adding to UnInformed Searches")
-        if direction == 0:  # Handle undirected graph
-            if main_graph is None:
-                main_graph = nx.Graph()
-            main_graph.add_edge(n1, n2, w=w)
-            main_graph.add_edge(n2, n1, w=w)
-
-        elif direction == 1:  # Handle directed graph
-            if main_graph is None:
-                main_graph = nx.DiGraph()
-            main_graph.add_edge(n1, n2, w=w)
-    elif chkbox==1:
-        print("Adding to Informed Searches")
+    global direction, main_graph
+    if direction == 0:  # Handle undirected graph
         if main_graph is None:
             main_graph = nx.Graph()
-        main_graph=bestfirst.generate_graph(n1,n2,w)
-        main_graph=astar.generate_graph(n1,n2,w)
+        main_graph.add_edge(n1, n2, w=w)
+        main_graph.add_edge(n2, n1, w=w)
+
+    elif direction == 1:  # Handle directed graph
+        if main_graph is None:
+            main_graph = nx.DiGraph()
+        main_graph.add_edge(n1, n2, w=w)
 
 def process_output(s, g):
-    global direction, chkbox, informed_search, uninformed_search, main_graph
+    global direction, chkbox, informed_search, uninformed_search, main_graph, heu_dic
     depth = 1
-    if chkbox == 0:  # uninformed
+    if interface.chk_uninform.isChecked():  # uninformed
         if uninformed_search == "Breadth First Search":
             listpath, sub_graph = bfs.printPath(main_graph, s, g)
             print(listpath)
@@ -388,15 +381,17 @@ def process_output(s, g):
             print(listpath)
             display_sub_graph(sub_graph)
         pass
-    elif chkbox == 1:  # informed
+    elif interface.chk_inform.isChecked():  # informed
         if informed_search == "Best First":
             print("Best First:")
-            listpath,sub_graph=bestfirst.best_first_search(main_graph, s, g)
+            heuristic = lambda state: heu_dic.get(state, float('inf'))
+            listpath,sub_graph=bestfirst.printPath(main_graph, s , g, heuristic)
             print(listpath)
             display_sub_graph(sub_graph)
         elif informed_search == "A*":
             print("A*:")
-            listpath,sub_graph=astar.astar_search(main_graph, s, g)
+            heuristic = lambda state: heu_dic.get(state, float('inf'))
+            listpath,sub_graph=astar.printPath(main_graph, s , g, heuristic)
             print(listpath)
             display_sub_graph(sub_graph)
         pass
