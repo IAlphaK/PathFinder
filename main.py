@@ -1,6 +1,8 @@
 import python_ui
 from PyQt6.QtWidgets import QApplication, QMainWindow, QMessageBox, QGraphicsScene
-from PyQt6.QtGui import QImage, QPixmap, QBrush, QPen, QColor, QFont
+from PyQt6.QtGui import QImage, QPixmap, QBrush, QPen, QColor, QFont, QPolygonF, QPainter
+from PyQt6.QtCore import QPointF
+import math
 import io
 import tkinter as tk
 from tkinter import simpledialog
@@ -205,7 +207,6 @@ def start_to_goal_path():
     start_node_qline.clear()
     goal_nodes_qline.clear()
 
-
 def display_sub_graph(sub_graph):
     global graph_scene
 
@@ -223,6 +224,12 @@ def display_sub_graph(sub_graph):
     edge_color = QColor("red")
 
     graph_scene.clear()  # Clear the existing scene
+
+    # Check if the graph is directed
+    is_directed = sub_graph.is_directed()
+
+    if is_directed:
+        print("Directed graph")
 
     # Render nodes and edges onto the scene
     for node, position in pos.items():
@@ -255,7 +262,6 @@ def display_sub_graph(sub_graph):
 
     # Set the scene on the viewgraph object
     interface.viewgraph.setScene(graph_scene)
-
 
 def gen_graph():
     global main_graph
@@ -307,13 +313,35 @@ def gen_graph():
         weight = str(main_graph[start_node][end_node]['w'])  # Get the weight of the edge
         x = (start_pos[0] + end_pos[0]) * 50 + node_size / 2  # Calculate the x-coordinate for the weight text
         y = (start_pos[1] + end_pos[1]) * 50 + node_size / 2  # Calculate the y-coordinate for the weight text
-        graph_scene.addLine(
-            start_pos[0] * 100 + node_size / 2,
-            start_pos[1] * 100 + node_size / 2,
-            end_pos[0] * 100 + node_size / 2,
-            end_pos[1] * 100 + node_size / 2,
-            QPen(edge_color),
-        )
+
+        if main_graph.is_directed():
+            arrow_size = 5
+            arrow_angle = 30
+            dx = end_pos[0] - start_pos[0]
+            dy = end_pos[1] - start_pos[1]
+            angle = math.atan2(dy, dx)  # Calculate the angle between the start and end positions
+            x1 = end_pos[0] * 100 + node_size / 2 - arrow_size * math.cos(angle + math.radians(arrow_angle))
+            y1 = end_pos[1] * 100 + node_size / 2 - arrow_size * math.sin(angle + math.radians(arrow_angle))
+            x2 = end_pos[0] * 100 + node_size / 2 - arrow_size * math.cos(angle - math.radians(arrow_angle))
+            y2 = end_pos[1] * 100 + node_size / 2 - arrow_size * math.sin(angle - math.radians(arrow_angle))
+
+            graph_scene.addLine(
+                start_pos[0] * 100 + node_size / 2,
+                start_pos[1] * 100 + node_size / 2,
+                end_pos[0] * 100 + node_size / 2,
+                end_pos[1] * 100 + node_size / 2,
+                QPen(edge_color),
+            )
+            graph_scene.addPolygon(QPolygonF([QPointF(x1, y1), QPointF(x2, y2), QPointF(end_pos[0] * 100 + node_size / 2, end_pos[1] * 100 + node_size / 2)]), QPen(edge_color), QBrush(edge_color))
+        else:
+            graph_scene.addLine(
+                start_pos[0] * 100 + node_size / 2,
+                start_pos[1] * 100 + node_size / 2,
+                end_pos[0] * 100 + node_size / 2,
+                end_pos[1] * 100 + node_size / 2,
+                QPen(edge_color),
+            )
+
         graph_scene.addText(weight, QFont("Arial", 8)).setPos(x, y)  # Display the weight as text
 
     # Set the scene on the viewgraph object
@@ -371,7 +399,7 @@ def process_output(s, g):
             print(listpath)
             display_sub_graph(sub_graph)
         elif uninformed_search == "Iterative Deepening":
-            print("iterative deepening Search")
+            print("Iterative deepening Search")
             depth = simpledialog.askinteger("Enter Depth", "Enter Depth:")
             listpath, sub_graph = ids.printPath(main_graph, s, g, depth)
             print(listpath)

@@ -26,7 +26,7 @@ def printPath(graph, start_state, goal_states, heuristic):
                 target = path[i + 1]
                 weight = int(graph.get_edge_data(source, target)['w'])  # Convert weight to int
                 path_graph.add_edge(source, target, weight=weight)
-            return traversal_path, path_graph.subgraph(traversal_path)  # Return the traversal path and the subgraph
+            return path, path_graph.subgraph(path)  # Return the traversal path and the subgraph
 
         if current_state in graph:
             neighbors = graph[current_state]
