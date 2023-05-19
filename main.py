@@ -13,6 +13,9 @@ import dls
 import ucs
 import bid
 import ids
+import bestfirst
+import astar
+
 app = QApplication(sys.argv)
 main_window = QMainWindow()
 interface = python_ui.Ui_MainWindow()
@@ -158,6 +161,8 @@ heu_qline = interface.i_informedheu
 
 
 def add_heunode():
+
+    global main_graph
     # Get the text entered in qlines
     node1 = inode_qline.text()
     heu = heu_qline.text()
@@ -171,6 +176,9 @@ def add_heunode():
         QMessageBox.warning(main_window, "Invalid Input", "Weight should be an integer.")
         return
     # Clear the qlines
+
+    bestfirst.add_heuristic_value(main_graph, node1, heu)
+    astar.add_heuristic_value(main_graph, node1, heu)
     inode_qline.clear()
     heu_qline.clear()
 
@@ -329,18 +337,25 @@ def handle_direction_change(index):
 
 
 def process_add(n1, n2, w):
-    global direction, main_graph
-    if direction == 0:  # Handle undirected graph
+    global direction, main_graph, informed_search
+    if chkbox==0:
+        print("Adding to UnInformed Searches")
+        if direction == 0:  # Handle undirected graph
+            if main_graph is None:
+                main_graph = nx.Graph()
+            main_graph.add_edge(n1, n2, w=w)
+            main_graph.add_edge(n2, n1, w=w)
+
+        elif direction == 1:  # Handle directed graph
+            if main_graph is None:
+                main_graph = nx.DiGraph()
+            main_graph.add_edge(n1, n2, w=w)
+    elif chkbox==1:
+        print("Adding to Informed Searches")
         if main_graph is None:
             main_graph = nx.Graph()
-        main_graph.add_edge(n1, n2, w=w)
-        main_graph.add_edge(n2, n1, w=w)
-
-    elif direction == 1:  # Handle directed graph
-        if main_graph is None:
-            main_graph = nx.DiGraph()
-        main_graph.add_edge(n1, n2, w=w)
-
+        main_graph=bestfirst.generate_graph(n1,n2,w)
+        main_graph=astar.generate_graph(n1,n2,w)
 
 def process_output(s, g):
     global direction, chkbox, informed_search, uninformed_search, main_graph
@@ -372,11 +387,19 @@ def process_output(s, g):
             listpath, sub_graph = bid.printPath(main_graph, s, g)
             print(listpath)
             display_sub_graph(sub_graph)
+        pass
     elif chkbox == 1:  # informed
         if informed_search == "Best First":
-            pass
+            print("Best First:")
+            listpath,sub_graph=bestfirst.best_first_search(main_graph, s, g)
+            print(listpath)
+            display_sub_graph(sub_graph)
         elif informed_search == "A*":
-            pass
+            print("A*:")
+            listpath,sub_graph=astar.astar_search(main_graph, s, g)
+            print(listpath)
+            display_sub_graph(sub_graph)
+        pass
 
 
 # Connect the signals to their respective slots
